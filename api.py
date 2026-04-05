@@ -1,12 +1,18 @@
 import requests
+import cache
 
 BASE_URL = "https://api.jolpi.ca/ergast/f1"
 
 
 def _get(endpoint: str) -> dict:
+    cached = cache.get(endpoint)
+    if cached:
+        return cached
     response = requests.get(f"{BASE_URL}{endpoint}.json")
     response.raise_for_status()
-    return response.json()
+    data = response.json()
+    cache.set(endpoint, data)
+    return data
 
 
 def get_current_season_standings() -> dict:
