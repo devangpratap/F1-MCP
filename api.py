@@ -164,3 +164,66 @@ def get_finish_statuses() -> list:
         }
         for s in statuses
     ]
+
+
+def get_lap_times(season: str, round_number: str, lap: str = None) -> list:
+    """Lap times for a race. Optionally filter to a specific lap number."""
+    endpoint = f"/{season}/{round_number}/laps"
+    if lap:
+        endpoint += f"/{lap}"
+    data = _get(endpoint)
+    races = data["MRData"]["RaceTable"]["Races"]
+    if not races:
+        return []
+    laps = races[0]["Laps"]
+    result = []
+    for lap_data in laps:
+        for timing in lap_data["Timings"]:
+            result.append({
+                "lap": lap_data["number"],
+                "driver_id": timing["driverId"],
+                "position": timing["position"],
+                "time": timing["time"],
+            })
+    return result
+
+
+def get_pit_stops(season: str, round_number: str) -> list:
+    """Pit stop data for a specific race."""
+    data = _get(f"/{season}/{round_number}/pitstops")
+    races = data["MRData"]["RaceTable"]["Races"]
+    if not races:
+        return []
+    pit_stops = races[0]["PitStops"]
+    return [
+        {
+            "driver_id": p["driverId"],
+            "lap": p["lap"],
+            "stop": p["stop"],
+            "time": p["time"],
+            "duration": p["duration"],
+        }
+        for p in pit_stops
+    ]
+
+
+def get_sprint_results(season: str, round_number: str) -> list:
+    """Sprint race results for a specific round."""
+    data = _get(f"/{season}/{round_number}/sprint")
+    races = data["MRData"]["RaceTable"]["Races"]
+    if not races:
+        return []
+    results = races[0]["SprintResults"]
+    return [
+        {
+            "position": r["position"],
+            "driver": f"{r['Driver']['givenName']} {r['Driver']['familyName']}",
+            "team": r["Constructor"]["name"],
+            "grid": r["grid"],
+            "laps": r["laps"],
+            "status": r["status"],
+            "points": r["points"],
+            "fastest_lap": r.get("FastestLap", {}).get("Time", {}).get("time"),
+        }
+        for r in results
+    ]
