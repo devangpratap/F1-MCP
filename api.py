@@ -116,3 +116,51 @@ def get_qualifying_results(season: str, round_number: str) -> list:
         }
         for r in results
     ]
+
+
+def get_circuits(season: str = "current") -> list:
+    """All circuits for a given season."""
+    data = _get(f"/{season}/circuits")
+    circuits = data["MRData"]["CircuitTable"]["Circuits"]
+    return [
+        {
+            "circuit_id": c["circuitId"],
+            "name": c["circuitName"],
+            "country": c["Location"]["country"],
+            "city": c["Location"]["locality"],
+            "lat": c["Location"]["lat"],
+            "long": c["Location"]["long"],
+        }
+        for c in circuits
+    ]
+
+
+def get_drivers(season: str = "current") -> list:
+    """All drivers for a given season."""
+    data = _get(f"/{season}/drivers")
+    drivers = data["MRData"]["DriverTable"]["Drivers"]
+    return [
+        {
+            "driver_id": d["driverId"],
+            "name": f"{d['givenName']} {d['familyName']}",
+            "nationality": d.get("nationality"),
+            "date_of_birth": d.get("dateOfBirth"),
+            "number": d.get("permanentNumber"),
+            "code": d.get("code"),
+        }
+        for d in drivers
+    ]
+
+
+def get_finish_statuses() -> list:
+    """All possible finish status codes (Finished, DNF, DNS, etc.)."""
+    data = _get("/status")
+    statuses = data["MRData"]["StatusTable"]["Status"]
+    return [
+        {
+            "status_id": s["statusId"],
+            "status": s["status"],
+            "count": s["count"],
+        }
+        for s in statuses
+    ]
