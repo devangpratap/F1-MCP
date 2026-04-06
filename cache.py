@@ -1,8 +1,9 @@
 import json
 import os
 from datetime import datetime, timedelta
+from config import CACHE_FILE
 
-CACHE_FILE = os.path.join(os.path.dirname(__file__), "cache.json")
+CACHE_FILE = os.path.join(os.path.dirname(__file__), CACHE_FILE)
 
 # TTLs in hours. None = cache forever (historical data never changes)
 TTL = {

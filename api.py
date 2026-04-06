@@ -1,14 +1,13 @@
 import requests
 import cache
-
-BASE_URL = "https://api.jolpi.ca/ergast/f1"
+from config import BASE_URL, REQUEST_TIMEOUT
 
 
 def _get(endpoint: str) -> dict:
     cached = cache.get(endpoint)
     if cached:
         return cached
-    response = requests.get(f"{BASE_URL}{endpoint}.json")
+    response = requests.get(f"{BASE_URL}{endpoint}.json", timeout=REQUEST_TIMEOUT)
     response.raise_for_status()
     data = response.json()
     cache.set(endpoint, data)
