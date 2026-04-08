@@ -58,5 +58,39 @@ def get_driver_season_results(season: str, driver_id: str) -> list:
     return api.get_driver_season_results(season, driver_id)
 
 
+@mcp.tool()
+def get_circuits(season: str = "current") -> list:
+    """Get all circuits for a season."""
+    return api.get_circuits(season)
+
+
+@mcp.tool()
+def get_drivers(season: str = "current") -> list:
+    """Get all drivers for a season."""
+    return api.get_drivers(season)
+
+
+@mcp.tool()
+def get_finish_statuses() -> list:
+    """Get all possible finish status codes e.g. Finished, DNF, DNS."""
+    return api.get_finish_statuses()
+
+
+@mcp.resource("f1://standings/drivers")
+def standings_resource() -> str:
+    """Current driver standings as a readable resource."""
+    standings = api.get_current_season_standings()
+    lines = [f"{s['position']}. {s['driver']} — {s['points']} pts ({s['team']})" for s in standings]
+    return "\n".join(lines)
+
+
+@mcp.resource("f1://standings/constructors")
+def constructor_standings_resource() -> str:
+    """Current constructor standings as a readable resource."""
+    standings = api.get_constructor_standings()
+    lines = [f"{s['position']}. {s['team']} — {s['points']} pts" for s in standings]
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     mcp.run()
